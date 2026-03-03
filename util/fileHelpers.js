@@ -5,24 +5,23 @@ let isFinalized = false;
 
 // 初始化一个增量计算 MD5 的对象
 const createMD5Incremental = () => {
-    isFinalized = false; // 每次重新创建哈希对象时重置标志
-    return crypto.createHash('md5');
+    const md5 = crypto.createHash('md5');
+    md5.isFinalized = false; // Attach isFinalized to the md5 object
+    return md5;
 };
-
 
 // 更新增量 MD5 对象
 function updateMD5Incremental(md5Incremental, chunk) {
-    if (isFinalized) {
+    if (md5Incremental.isFinalized) {
         throw new Error('Cannot update MD5 after finalization');
     }
     md5Incremental.update(chunk, 'utf8');
 }
 
-
 // 获取增量 MD5 的最终值
 function finalizeMD5Incremental(md5Incremental) {
-    if (!isFinalized) {
-        isFinalized = true;  // 设置为已完成
+    if (!md5Incremental.isFinalized) {
+        md5Incremental.isFinalized = true;  // Set isFinalized on the md5 object
         return md5Incremental.digest('hex');
     } else {
         return md5Incremental.digest('hex');

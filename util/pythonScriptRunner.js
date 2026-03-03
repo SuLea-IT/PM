@@ -14,7 +14,9 @@ const path = require('path');
  * @param {number} scriptRunId - 数据库中对应脚本运行的ID
  * @returns {Promise<string>} - 返回一个Promise，解析为Python脚本输出的生成目录路径
  */
-const runPythonScript = (fun,type, folderPath, storagePath, email, scriptRunId) => {
+const runPythonScript = (fun,type, folderPath, storagePath, email, scriptRunId,pointSize) => {
+    console.log(folderPath);
+    console.log(storagePath);
     console.log("正在执行py脚本，请等待");
     return new Promise((resolve, reject) => {
         // 脚本映射
@@ -36,7 +38,7 @@ const runPythonScript = (fun,type, folderPath, storagePath, email, scriptRunId) 
         // 指定Python解释器路径
         const pythonInterpreter = process.env.PYTHON_INTERPRETER;
         // 创建运行Python脚本的命令
-        const pythonCommand = `${pythonInterpreter} ${scriptPath} ${folderPath} ${storagePath}`;
+        const pythonCommand = `${pythonInterpreter} ${scriptPath} ${folderPath} ${storagePath} ${pointSize}`;
         exec(pythonCommand, async (error, stdout, stderr) => {
             if (stderr.includes("UserWarning: No data for colormapping provided") ||
                 stderr.includes("TypeError: close() argument must be a Figure")) {

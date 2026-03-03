@@ -155,10 +155,37 @@ const getCurrentHourAndMinute = (date) => {
 const sanitizeFileName = (name) => {
     return name.replace(/[^a-zA-Z0-9-_]/g, '_');
 };
+const readAndFilterConfigFile = async (storagePath) => {
+    try {
+        const configFilePath = path.join(storagePath, 'config.txt');
 
+        // 读取文件
+        const fileContent = await fs.readFile(configFilePath, 'utf-8');
+
+        // 过滤掉以 // 开头的行
+        const filteredContent = fileContent
+            .split('\n') // 按行拆分
+            .filter(line => !line.trim().startsWith('//')) // 过滤掉以 // 开头的行
+            .join('\n'); // 重新拼接成字符串
+        return filteredContent;
+    } catch (error) {
+        console.error('读取并过滤 config.txt 时出错:', error.message);
+        throw error;
+    }
+};
+// 从配置文本中提取 PointSize
+function extractPointSize(configText) {
+    const regex = /PointSize\s*=\s*(\d+)/i;
+    const match = configText.match(regex);
+    if (match && match[1]) {
+        return parseFloat(match[1]);
+    } else {
+        throw new Error('配置文件中未找到有效的 PointSize 值');
+    }
+}
 
 const handleFileUpload = async (req, fileExtension) => {
-    const {index, totalChunks, fileName, type, number, currentFileIndex, totalFiles, email,fun} = req.body;
+    const {index, totalChunks, fileName, type, number, currentFileIndex, totalFiles, email, fun} = req.body;
     const type1 = type;
     const total = parseInt(totalChunks, 10);
     const indexInt = parseInt(index, 10);
@@ -179,9 +206,9 @@ const handleFileUpload = async (req, fileExtension) => {
     const uploadId = `${timestamp}_${ip}_${fun}_${type}_${sanitizedFileName}`;
 
     const projectDir = path.join('uploads', timestamp);
-    await fsExtra.ensureDir(projectDir);
+    await fsExtra.ensureDir(projectDir);  // 确保项目目录存在
     const chunkDir = path.join(projectDir, uploadId);
-    await fsExtra.ensureDir(chunkDir);
+    await fsExtra.ensureDir(chunkDir);  // 确保分片目录存在
 
     const chunkPath = path.join(chunkDir, indexInt.toString());
 
@@ -191,14 +218,13 @@ const handleFileUpload = async (req, fileExtension) => {
             fileName,
             fileSize: 0,
             scriptExecuted: false,
-            md5Incremental: createMD5Incremental() // 在初始化时创建一个新的MD5对象
+            md5Incremental: createMD5Incremental() // 初始化新的 MD5 对象
         };
         fileExistFlag[uploadId] = false;
     } else if (indexInt === 0) {
-        // 如果是新的一次上传，重新初始化md5对象
+        // 如果是新的一次上传，重新初始化 md5Incremental
         uploadProgress[uploadId].md5Incremental = createMD5Incremental();
     }
-
 
     if (!req.file) {
         throw new Error('文件未提供');
@@ -216,32 +242,42 @@ const handleFileUpload = async (req, fileExtension) => {
             uploadProgress[uploadId].firstChunkMD5 = chunkMD5;
         }
 
+        // 确保目标路径存在
+        await fsExtra.ensureDir(chunkDir);
+
+        // 将分片移动到目标目录
         await fsExtra.move(req.file.path, chunkPath);
 
+        // 更新增量 MD5
         updateMD5Incremental(uploadProgress[uploadId].md5Incremental, chunkData);
         uploadProgress[uploadId].chunks[indexInt] = true;
+
         const allUploaded = uploadProgress[uploadId].chunks.every(status => status === true);
         if (allUploaded) {
-            console.log(chunkDir)
-            console.log(projectDir)
-            await fsExtra.ensureDir(chunkDir);
+            console.log("所有分片上传完成，开始合并");
+
             const files = uploadProgress[uploadId].chunks.map((_, i) => path.join(chunkDir, i.toString()));
             const tempOutputPath = path.join(projectDir, `temp_${uploadId}`);
             await mergeChunks(files, tempOutputPath);
-            console.log("合并文件结束")
+            console.log("合并文件结束");
+
             const finalMD5 = finalizeMD5Incremental(uploadProgress[uploadId].md5Incremental);
 
             const finalFolder = path.join(projectDir, `${ip}_${fun}_${type}`);
-            await fsExtra.ensureDir(finalFolder);
+            await fsExtra.ensureDir(finalFolder);  // 确保最终目录存在
 
             const finalOutputPath = path.join(finalFolder, `${fileName}`);
 
+            // 检查目标文件是否存在并覆盖
             if (await fsExtra.pathExists(finalOutputPath)) {
-                return {code: 400, msg: '目标文件已经存在', data: null};
+                console.log('目标文件已存在，将进行覆盖');
+                await fsExtra.remove(finalOutputPath);  // 删除已有文件，准备覆盖
             }
 
+            // 移动合并的文件到目标位置
             await fsExtra.move(tempOutputPath, finalOutputPath);
 
+            // 保存到数据库
             await db.query('INSERT INTO files (timestamp, ip, filename, filepath, file_size, first_chunk_md5, request_type, file_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
                 timestamp,
                 ip,
@@ -253,52 +289,54 @@ const handleFileUpload = async (req, fileExtension) => {
                 number,
             ]);
 
+            // 删除分片目录
             await fsExtra.remove(chunkDir);
 
             const firstChunkMD5 = uploadProgress[uploadId].firstChunkMD5;
+
+            // 检查是否所有文件上传完成
             if (checkAllFilesUploaded(type, totalFiles, currentFileIndex)) {
-                const storagePath = await createStorageStructure(timestamp, ip, type1, type,fun);
+                const storagePath = await createStorageStructure(timestamp, ip, type1, type, fun);
                 console.log(`创建的存储路径: ${storagePath}`);
+                const configText = await readAndFilterConfigFile(finalFolder);
+                // 提取 PointSize
+                const pointSize = extractPointSize(configText);
 
-                const scriptRunId = await saveScriptRun(type,fun, finalFolder, storagePath, email);
-                console.log(`保存的脚本运行ID: ${scriptRunId}`);
-
-                // 在尝试读取之前，等待插入完全完成
-                await new Promise(resolve => setTimeout(resolve, 100)); // 增加一个短暂的延时，等待数据库事务完成
-
-                // 从数据库读取脚本运行参数
-                const scriptRun = await getScriptRunById(scriptRunId);
-
-                // 检查并运行脚本
-                if (scriptRun) {
-                    runPythonScript(scriptRun.fun,scriptRun.type, scriptRun.folderPath, scriptRun.storagePath,
-                    scriptRun.email, scriptRunId)
-                        .then((result) => console.log(`Python脚本执行成功: ${result}`))
-                        .catch((error) => console.error(`Python脚本执行失败: ${error}`));
-                } else {
-                    console.error('脚本运行记录未找到，可能在保存时出现问题。');
-                }
+                // const scriptRunId = await saveScriptRun(type, fun, finalFolder, storagePath, email);
+                // console.log(`保存的脚本运行ID: ${scriptRunId}`);
+                //
+                // // 等待数据库事务完成
+                // await new Promise(resolve => setTimeout(resolve, 100));
+                //
+                // const scriptRun = await getScriptRunById(scriptRunId);
+                //
+                // // 执行Python脚本
+                // if (scriptRun) {
+                //     runPythonScript(scriptRun.fun, scriptRun.type, scriptRun.folderPath, scriptRun.storagePath,
+                //     scriptRun.email, scriptRunId,pointSize)
+                //         .then(result => console.log(`Python脚本执行成功: ${result}`))
+                //         .catch(error => console.error(`Python脚本执行失败: ${error}`));
+                // } else {
+                //     console.error('脚本运行记录未找到，可能在保存时出现问题。');
+                // }
             }
 
-            return {code: 200, msg: '文件合并成功并且分片文件夹已删除', data: {md5: finalMD5, first_chunk_md5: firstChunkMD5}};
+            return { code: 200, msg: '文件合并成功并且分片文件夹已删除', data: { md5: finalMD5, first_chunk_md5: firstChunkMD5 } };
         } else {
-            return {code: 200, msg: '分片上传成功，等待其他分片', data: null};
+            return { code: 200, msg: '分片上传成功，等待其他分片', data: null };
         }
     } catch (error) {
-        if (error.message.includes('dest already exists')) {
-            console.error(`文件上传错误: ${error.message}`, error);
-            await fsExtra.remove(chunkDir);
-            await fsExtra.remove(req.file.path);
-            return {code: 400, msg: '文件已经存在', data: null};
-        } else {
-            console.error(`移动文件分片错误: ${error.message}`, error);
-            await fsExtra.remove(chunkDir);
-            delete uploadProgress[uploadId];
-            delete fileExistFlag[uploadId];
-            throw new Error(`服务器错误：无法移动文件分片 - ${error.message}`);
-        }
+        console.error(`移动文件分片错误: ${error.message}`, error);
+
+        // 清理临时文件和分片文件夹
+        await fsExtra.remove(chunkDir);
+        delete uploadProgress[uploadId];
+        delete fileExistFlag[uploadId];
+
+        throw new Error(`服务器错误：无法移动文件分片 - ${error.message}`);
     }
 };
+
 
 
 module.exports = {

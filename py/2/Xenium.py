@@ -12,31 +12,38 @@ def save_figure(adata, genes, save_path, filename, plot_type, dpi=300, Finally=F
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    fig = None
     if plot_type == 'umap':
-        fig = sc.pl.umap(
+        fig_list = sc.pl.umap(
             adata,
             color=[genes, "leiden"],
             frameon=False,
             ncols=3,
             size=5, show=False, return_fig=True
         )
+        # Check if it's a list and loop through it to save each figure
+        if isinstance(fig_list, list):
+            for idx, fig in enumerate(fig_list):
+                full_save_path = os.path.join(save_path, f'{filename}_{plot_type}_{idx}.pdf')
+                fig.savefig(full_save_path, format='pdf', dpi=dpi)
+                plt.close(fig)
+        else:
+            full_save_path = os.path.join(save_path, f'{filename}_{plot_type}.pdf')
+            fig_list.savefig(full_save_path, format='pdf', dpi=dpi)
+            plt.close(fig_list)
     elif plot_type == 'dotplot':
-        sc.pl.dotplot(xenium_test, [genes] if isinstance(genes, str) else genes, groupby="leiden", standard_scale="var", show=False)
-        fig = plt.gcf()  # 获取当前的 Matplotlib 图像
-    elif plot_type == 'spatial':
-        sq.pl.spatial_scatter(adata,library_id="spatial", color=genes, size=2, shape=None, edges_color="black",
-                              img=False,
-                              show=False, return_fig=True)
-    else:
-        return
-
-    if fig is not None:
-        # 保存图像并关闭
+        sc.pl.dotplot(xenium_test, genes, groupby="leiden", standard_scale="var", return_fig=True)
+        fig = plt.gcf()  # Get the current figure
         full_save_path = os.path.join(save_path, f'{filename}_{plot_type}.pdf')
         fig.savefig(full_save_path, format='pdf', dpi=dpi)
         plt.close(fig)
-
+    elif plot_type == 'spatial':
+        sq.pl.spatial_scatter(adata, color=genes, size=1, shape=None, edges_color="black")
+        fig =plt.gcf()
+        full_save_path = os.path.join(save_path, f'{filename}_{plot_type}.pdf')
+        fig.savefig(full_save_path, format='pdf', dpi=dpi)
+        plt.close(fig)
+    else:
+        return
     if Finally:
         print(save_path)
 
@@ -48,6 +55,9 @@ gene_id_file_path = f'{mat}/geneid.txt'
 xenium_test = sc.read_10x_h5(filename=f"{mat}/cell_feature_matrix.h5")
 # 读取细胞信息表格，使用gzip打开csv文件
 df = pd.read_csv(f"{mat}/cells.csv.gz")
+df.set_index(xenium_test.obs_names, inplace=True)
+xenium_test.obs = df.copy()
+xenium_test.obsm["spatial"] = xenium_test.obs[["x_centroid", "y_centroid"]].copy().to_numpy()
 # 数据过滤步骤
 # 移除总表达量为0的细胞，避免t-SNE过程中出现问题
 # sc.pp.filter_cells(xenium_test, min_genes=1)
@@ -90,4 +100,6 @@ if os.path.exists(gene_id_file_path):
     for idx, gene_id in enumerate(gene_ids):
         is_last = idx == len(gene_ids) - 1  # 检查是否是最后一个基因ID
         save_figure(xenium_test, gene_id, save_path, f'spatial_gene_projection_{gene_id}', plot_type='umap')
-        save_figure(xenium_test, gene_id, save_path, f'spatial_dotplot_gene_projection_{gene_id}', plot_type='dotplot',Finally=is_last)
+        save_figure(xenium_test, gene_id, save_path, f'spatial_dotplot_gene_projection_{gene_id}', plot_type='dotplot')
+        save_figure(xenium_test,gene_id, save_path, f'spatial_dotplot_gene_projection_{gene_id}',
+                    plot_type='spatial',Finally=is_last)

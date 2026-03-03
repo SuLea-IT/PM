@@ -16,28 +16,28 @@ const uploadGene = {
     * */
     1: {
         allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
-        requiredFileNames: ['barcodes', 'features', 'matrix', "*"],
-        uploadFileCount: 4
+        requiredFileNames: ['barcodes', 'features', 'matrix', "*", "*"],
+        uploadFileCount: 5
     },
     2: {
-        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
-        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos', "*"],
-        uploadFileCount: 5
+        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text','.npy'],
+        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos', "*","*"],
+        uploadFileCount: 7
     },
     3: {
         allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
         requiredFileNames: ['barcodes', 'features', 'matrix', '*'],
-        uploadFileCount: 5
+        uploadFileCount: 6
     },
     4: {
         allowedExtensions: ['.csv.gz','.h5','.txt','.text'],
         requiredFileNames: ['*', '*'],
-        uploadFileCount: 3
+        uploadFileCount: 4
     },
     5: {
         allowedExtensions: ['.h5ad','.txt','.text'],
         requiredFileNames: ['*', '*'],
-        uploadFileCount: 2
+        uploadFileCount: 3
     }
 };
 const uploadGenes = {
@@ -51,12 +51,46 @@ const uploadGenes = {
     1: {
         allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
         requiredFileNames: ['barcodes', 'features', 'matrix', "*"],
+        uploadFileCount: 5
+    },
+    2: {
+        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text','.npy'],
+        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos', "*","*"],
+        uploadFileCount: 7
+    },
+    3: {
+        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
+        requiredFileNames: ['barcodes', 'features', 'matrix', '*'],
+        uploadFileCount: 6
+    },
+    4: {
+        allowedExtensions: ['.csv.gz','.h5','.txt','.text'],
+        requiredFileNames: ['*', '*'],
+        uploadFileCount: 4
+    },
+    5: {
+        allowedExtensions: ['.h5ad','.txt','.text'],
+        requiredFileNames: ['*', '*'],
+        uploadFileCount: 3
+    }
+};
+const uploadCluster = {
+    /*
+    * 1.代表单细胞数据类型
+    * 2.单细胞级别空间类型
+    * 3.百迈克空间转录组数据
+    * 4.Xenium数据
+    * 5.h5ad数据类型
+    * */
+    1: {
+        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
+        requiredFileNames: ['barcodes', 'features', 'matrix', '*'],
         uploadFileCount: 4
     },
     2: {
-        allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
-        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos', "*"],
-        uploadFileCount: 5
+        allowedExtensions: ['.tsv.gz', '.mtx.gz','.npy','.txt','.text'],
+        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos','*'],
+        uploadFileCount: 6
     },
     3: {
         allowedExtensions: ['.tsv.gz', '.mtx.gz','.txt','.text'],
@@ -72,40 +106,6 @@ const uploadGenes = {
         allowedExtensions: ['.h5ad','.txt','.text'],
         requiredFileNames: ['*', '*'],
         uploadFileCount: 2
-    }
-};
-const uploadCluster = {
-    /*
-    * 1.代表单细胞数据类型
-    * 2.单细胞级别空间类型
-    * 3.百迈克空间转录组数据
-    * 4.Xenium数据
-    * 5.h5ad数据类型
-    * */
-    1: {
-        allowedExtensions: ['.tsv.gz', '.mtx.gz'],
-        requiredFileNames: ['barcodes', 'features', 'matrix'],
-        uploadFileCount: 3
-    },
-    2: {
-        allowedExtensions: ['.tsv.gz', '.mtx.gz'],
-        requiredFileNames: ['barcodes', 'features', 'matrix', 'barcodes_pos'],
-        uploadFileCount: 4
-    },
-    3: {
-        allowedExtensions: ['.tsv.gz', '.mtx.gz'],
-        requiredFileNames: ['barcodes', 'features', 'matrix', '*'],
-        uploadFileCount: 4
-    },
-    4: {
-        allowedExtensions: ['.csv.gz','.h5'],
-        requiredFileNames: ['*', '*'],
-        uploadFileCount: 2
-    },
-    5: {
-        allowedExtensions: ['.h5ad'],
-        requiredFileNames: ['*', '*'],
-        uploadFileCount: 1
     }
 };
 

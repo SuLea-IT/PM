@@ -11,7 +11,7 @@ import os
 save_path = sys.argv[2]
 mat = sys.argv[1]
 # 定义保存图像的函数
-def save_figure(adata, genes, save_path, filename, plot_type='umap', dpi=300):
+def save_figure(adata, genes, save_path, filename, plot_type, dpi=300, Finally=False):
     """
     保存UMAP或dotplot图像到指定路径
 
@@ -32,26 +32,25 @@ def save_figure(adata, genes, save_path, filename, plot_type='umap', dpi=300):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    # 检查数据是否存在
-    valid_genes = [gene for gene in genes if gene in adata.var_names or gene in adata.obs.columns]
-    if not valid_genes:
-        print(f"No valid data found for genes: {genes}. Skipping plot.")
-        return
-
     # 生成指定类型的图形并获取Figure对象
     if plot_type == 'umap':
-        fig = sc.pl.umap(adata, color=valid_genes, frameon=False, ncols=3, size=5, show=False, return_fig=True)
+        fig = sc.pl.umap(adata, color=genes, frameon=False, ncols=3, size=5, show=False, return_fig=True)
     elif plot_type == 'dotplot':
-        fig = sc.pl.dotplot(adata, valid_genes, groupby="leiden", standard_scale="var", show=False, return_fig=True)
+        sc.pl.dotplot(adata, genes, groupby="leiden", standard_scale="var", show=False)
+        fig = plt.gcf()  # 获取当前的 Matplotlib 图像
+    elif plot_type == 'spatial':
+        sq.pl.spatial_scatter(adata,library_id="spatial", color=genes, size=2, shape=None, edges_color="black",
+                              img=False)
+        fig = plt.gcf()  # 获取当前的 Matplotlib 图像
     else:
-        print("Unsupported plot type.")
         return
 
     # 保存图像为PDF格式
     full_save_path = os.path.join(save_path, f'{filename}_{plot_type}.pdf')
     fig.savefig(full_save_path, format='pdf', dpi=dpi)
     plt.close(fig)
-    print(save_path)
+    if Finally:
+        print(save_path)
 
 # # 设置保存路径
 # save_path = "D:/Desktop/fsdownload/2/result"
@@ -71,9 +70,4 @@ if os.path.exists(gene_id_file_path):
     # 生成多个基因的UMAP图
     for gene_id in gene_ids:
         save_figure(sc_test, [gene_id, "leiden"], save_path, f'gene_projection_{gene_id}', plot_type='umap')
-else:
-    # 如果基因ID文件不存在，生成单个基因的UMAP图
-    save_figure(sc_test, ["Solyc02g067340.5", "leiden"], save_path, 'single_gene_projection', plot_type='umap')
-
-# 无论基因ID文件是否存在，都生成dotplot图
-save_figure(sc_test, ["Solyc02g067340.5"], save_path, 'dotplot_gene_projection', plot_type='dotplot')
+        save_figure(sc_test, [gene_id, "leiden"], save_path, 'dotplot_gene_projection', plot_type='dotplot')

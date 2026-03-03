@@ -1,9 +1,12 @@
 import sys
+import pandas as pd
+import numpy as np
+import gzip
+from pandas.api.types import CategoricalDtype
 import scanpy as sc
 import os
 import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
+import squidpy as sq
 
 # 从命令行参数获取路径
 mat = sys.argv[1]

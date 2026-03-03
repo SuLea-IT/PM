@@ -80,16 +80,14 @@ sc.tl.tsne(sc_test)
 
 # 运行Leiden聚类
 sc.tl.leiden(sc_test, resolution=0.5)
-
-
+# print(sc_test.var_names)
+gene_ids = []
 # 检查基因ID文件并生成相应的图像
 if os.path.exists(gene_id_file_path):
-    gene_ids = []
     with open(gene_id_file_path, 'r') as file:
         next(file)  # 跳过标题行
         for line in file:
             gene_ids.append(line.strip())
 sc.tl.score_genes(sc_test, gene_ids, ctrl_size=50, n_bins=25, score_name='my_score')
-
-save_figure(sc_test, gene_ids, save_path, f'spatial_gene_projection', plot_type='umap')
-save_figure(sc_test, gene_ids, save_path, f'spatial_gene_projection', plot_type='dotplot', Finally=True)
+save_figure(sc_test, gene_ids, save_path, f'gene_projection', plot_type='umap')
+save_figure(sc_test, gene_ids, save_path, f'gene_projection', plot_type='dotplot', Finally=True)

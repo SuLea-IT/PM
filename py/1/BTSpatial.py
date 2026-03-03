@@ -12,15 +12,16 @@ mat = sys.argv[1]
 save_path = sys.argv[2]
 
 # 定义保存图片的函数
-def save_figure(adata, save_path, filename, plot_type='umap', key=None, dpi=300,Finally=False):
+def save_figure(adata, save_path, filename, plot_type='umap', key=None, dpi=300, Finally=False):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
+
     if plot_type == 'umap':
-        sc.pl.umap(adata, color=key,show=False)
+        sc.pl.umap(adata, color=key, show=False)
     elif plot_type == 'tsne':
-        sc.pl.tsne(adata, color=key,show=False)
+        sc.pl.tsne(adata, color=key, show=False)
     elif plot_type == 'spatial':
-        sq.pl.spatial_scatter(adata, size=1, shape=None, edges_color="black", color=key,show=False)
+        sq.pl.spatial_scatter(adata, size=1, shape=None, edges_color="black", color=key)
     else:
         return
 
@@ -28,8 +29,10 @@ def save_figure(adata, save_path, filename, plot_type='umap', key=None, dpi=300,
     full_save_path = os.path.join(save_path, f'{filename}_{plot_type}.pdf')
     fig.savefig(full_save_path, format='pdf', dpi=dpi)
     plt.close(fig)
+
     if Finally:
         print(save_path)
+
 # 读取百迈克空间转录组数据
 coord = f"{mat}/barcodes_pos.tsv.gz"
 adata = sc.read_10x_mtx(path=mat)

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import getopt
 import sys
 import os
+#import utils
 import cellpose
 import cellpose.utils
 import matplotlib as mpl
@@ -112,20 +113,20 @@ class ColorConverter:
     @staticmethod
     def hex_to_rgb(hex_color):
         """
-        将HEX颜色转换为RGB颜色。
+        将HEX颜色转换为RGB颜色。        
         :param hex_color: HEX格式的颜色代码，如'#ff0000'。
         :return: 对应的RGB元组，如(255, 0, 0)。
         """
-        return tuple(int(hex_color.lstrip('#')[i:i+2], 16) for i in range(0, 6, 2))
+        return tuple(int(hex_color.lstrip('#')[i:i+2], 16) for i in range(0, 6, 2))    
     @staticmethod
     def rgb_to_hex(rgb_color):
         """
-        将RGB颜色转换为HEX颜色。
+        将RGB颜色转换为HEX颜色。       
         :param rgb_color: RGB格式的颜色代码，如(255, 0, 0)。
         :return: 对应的HEX字符串，如'#ff0000'。
         """
         return '#' + ''.join([hex(c)[2:].rjust(2, '0') for c in rgb_color])
-
+ 
 
 
 
@@ -142,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument('--background_color', type=str, default="#000000",
                         help="If give, background color will change.eg:'#000000'")
     parser.add_argument('--line_color', type=str, default="#000000",
-                    help="If give, background color will change.eg:'#000000'")
+                    help="If give, background color will change.eg:'#000000'")                    
     args = parser.parse_args()
 
     cells_npy = args.cells_npy

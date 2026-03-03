@@ -18,7 +18,7 @@ def save_figure(adata, save_path, filename, plot_type='umap', key=None, dpi=300,
     elif plot_type == 'tsne':
         sc.pl.tsne(adata, color=key,show=False)
     elif plot_type == 'spatial':
-        sq.pl.spatial_scatter(adata, size=1, shape=None, edges_color="black", color=key,show=False)
+        sq.pl.spatial_scatter(adata, size=1, shape=None, edges_color="black", color=key)
     else:
         return
 
@@ -54,7 +54,7 @@ sc.tl.leiden(xenium_test, resolution=0.5)
 save_figure(xenium_test, save_path, 'clustered_data_umap', plot_type='umap')  # 无leiden
 save_figure(xenium_test, save_path, 'clustered_data_tsne', plot_type='tsne')  # 无leiden
 save_figure(xenium_test, save_path, 'clustered_data_umap_leiden', plot_type='umap', key='leiden')
-save_figure(xenium_test, save_path, 'clustered_data_tsne_leiden', plot_type='tsne', key='leiden',Finally=True)
+save_figure(xenium_test, save_path, 'clustered_data_tsne_leiden', plot_type='tsne', key='leiden')
 
 save_figure(xenium_test, save_path, 'clustered_data_spatial', plot_type='spatial', key='leiden',Finally=True)
 #输出两表

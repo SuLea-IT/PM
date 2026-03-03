@@ -27,7 +27,7 @@ const sendEmail = async (to, dirPath) => {
         archive.pipe(output);
         console.log(dirPath)
         // 使用完整路径压缩指定的文件夹内的所有文件和子文件夹
-        archive.directory(path.resolve(dirPath), false);
+        archive.directory(path.resolve(dirPath), path.basename(dirPath));
 
         await new Promise((resolve, reject) => {
             output.on('close', resolve);
