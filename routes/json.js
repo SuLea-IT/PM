@@ -22,8 +22,9 @@ router.get('/', function (req, res, next) {
         strGene = 'ABCG14a';
     }
 
-    if (data == "xenium" || data == "umap") {
-        pathA = path.join(data, file);
+    if ((data == "xenium" || data == "umap" || data == "spatial") && file) {
+        const safeFile = path.basename(file);
+        pathA = path.join(data, safeFile);
     }
 
     const gene = req.query.gene || strGene;
