@@ -1,31 +1,25 @@
-let createError = require('http-errors');
-let express = require('express');
-let path = require('path');
-let cookieParser = require('cookie-parser');
-let logger = require('morgan');
-let cors = require('cors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 const indexRouter = require('./routes');
 
-console.log('正在初始化服务器...');
+console.log('Initializing server...');
 
-let app = express();
-
-// 设置端口
+const app = express();
 const port = process.env.PORT || 3001;
 
-// 简化的 CORS 配置，允许所有域名访问
 const corsOptions = {
-  origin: '*',  // 允许所有域名访问
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: false,  // 由于使用 '*'，credentials 必须设置为 false
+  credentials: false,
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-
-// 添加预检请求处理
 app.options('*', cors(corsOptions));
 
 app.use(logger('dev'));
@@ -35,44 +29,39 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API 路由
-app.use('/api', function (req, res, next) {
-  console.log('收到 API 请求:', req.method, req.url);
-  res.header('Access-Control-Allow-Origin', '*');  // 允许所有域名访问
+app.use('/api', (req, res, next) => {
+  console.log('Received API request:', req.method, req.url);
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
   next();
 }, indexRouter);
 
-// 错误处理
-app.use(function (err, req, res, next) {
-  console.error('发生错误:', err.stack);
-  res.status(err.status || 500);
-  res.json({
+app.use((err, req, res, next) => {
+  console.error('Unhandled application error:', err.stack);
+  res.status(err.status || 500).json({
     error: {
       message: err.message,
-      status: err.status || 500
-    }
+      status: err.status || 500,
+    },
   });
 });
 
-// 捕获未处理的异常
 process.on('uncaughtException', (err) => {
-  console.error('未捕获的异常:', err);
+  console.error('Uncaught exception:', err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('未处理的 Promise 拒绝:', reason);
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
 });
 
-// 启动服务器
 try {
   app.listen(port, () => {
-    console.log(`服务器成功启动并运行在 http://localhost:${port}`);
-    console.log('CORS 已配置为允许所有域名访问');
+    console.log(`Server started at http://localhost:${port}`);
+    console.log('CORS is enabled for all origins.');
   });
 } catch (error) {
-  console.error('服务器启动失败:', error);
+  console.error('Failed to start server:', error);
 }
 
 module.exports = app;

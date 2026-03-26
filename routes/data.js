@@ -55,6 +55,20 @@ function resolveDatasetDir(dataSource, dataType) {
     return { datasetDir: null, checked };
 }
 
+function resolveClusterJsonFile(dataSource, dataType) {
+    const checked = [];
+    for (const root of getDataRoots()) {
+        const candidate = dataType
+            ? path.join(root, dataSource, dataType, 'clusters.json')
+            : path.join(root, dataSource, 'clusters.json');
+        checked.push(candidate);
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+            return { filePath: candidate, checked };
+        }
+    }
+    return { filePath: null, checked };
+}
+
 function listDatasetTypes(dataSource) {
     const names = new Set();
     for (const root of getDataRoots()) {
@@ -116,6 +130,67 @@ router.get('/types', (req, res) => {
         res.json({ success: true, data: types });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message, data: [] });
+    }
+});
+
+router.post('/cluster-meta', async (req, res) => {
+    try {
+        const dataSource = sanitizeName(req.body.dataSource || '');
+        const dataType = sanitizeName(req.body.dataType || '');
+        const clusterId = String(req.body.clusterId ?? '').trim();
+        const name = typeof req.body.name === 'string' ? req.body.name.trim() : undefined;
+        const color = typeof req.body.color === 'string' ? req.body.color.trim() : undefined;
+
+        if (!dataSource) {
+            res.status(400).json({ success: false, message: 'dataSource is required' });
+            return;
+        }
+        if (!clusterId) {
+            res.status(400).json({ success: false, message: 'clusterId is required' });
+            return;
+        }
+        if (name !== undefined && !name) {
+            res.status(400).json({ success: false, message: 'name cannot be empty' });
+            return;
+        }
+
+        const { filePath, checked } = resolveClusterJsonFile(dataSource, dataType || '');
+        if (!filePath) {
+            res.status(404).json({ success: false, message: 'clusters.json not found', checked });
+            return;
+        }
+
+        const raw = await fs.promises.readFile(filePath, 'utf-8');
+        const json = JSON.parse(raw);
+        const cluster = json[clusterId];
+
+        if (!cluster || typeof cluster !== 'object') {
+            res.status(404).json({ success: false, message: 'cluster not found', clusterId });
+            return;
+        }
+
+        if (name !== undefined) {
+            cluster.name = name;
+        }
+        if (color !== undefined) {
+            cluster.color = color;
+        }
+
+        const tempFile = `${filePath}.tmp`;
+        await fs.promises.writeFile(tempFile, JSON.stringify(json), 'utf-8');
+        await fs.promises.rename(tempFile, filePath);
+
+        res.json({
+            success: true,
+            data: {
+                clusterId,
+                name: cluster.name,
+                color: cluster.color,
+                filePath,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
