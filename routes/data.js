@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
+const resolvePythonInterpreter = require('../util/resolvePythonInterpreter');
 
 const router = express.Router();
 
@@ -11,9 +12,7 @@ const BACKEND_ROOT = path.resolve(__dirname, '..');
 const DATA_ROOT = path.join(BASE_DIR, 'data');
 const FRONT_PUBLIC_IN_BASE = path.join(BASE_DIR, 'PM-System-Beta-Front', 'public');
 const FRONT_PUBLIC_SIBLING = path.resolve(BACKEND_ROOT, '..', 'PM-System-Beta-Front', 'public');
-const PYTHON_PATH = process.env.PYTHON_INTERPRETER
-    ? `${process.env.PYTHON_INTERPRETER}/bin/python`
-    : 'python3';
+const PYTHON_PATH = resolvePythonInterpreter();
 const LIST_GENES_SCRIPT_CANDIDATES = [
     path.join(BASE_DIR, 'py', 'util', 'list_genes.py'),
     path.join(BACKEND_ROOT, 'py', 'util', 'list_genes.py'),

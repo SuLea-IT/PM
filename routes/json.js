@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { spawn } = require('child_process');
 const path = require('path');
+const resolvePythonInterpreter = require('../util/resolvePythonInterpreter');
 
 // 设置基础路径
 const BASE_DIR = '/home/ubuntu/newpyF/Beta';
 // 获取Python解释器路径
-const PYTHON_PATH = process.env.PYTHON_INTERPRETER ? `${process.env.PYTHON_INTERPRETER}/bin/python` : 'python3';
+const PYTHON_PATH = resolvePythonInterpreter();
 
 router.get('/', function (req, res, next) {
     let strGene = "";

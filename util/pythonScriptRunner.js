@@ -155,7 +155,10 @@ async function runPythonScript(fun, type, folderPath, storagePath, email, script
     try {
         if (email) {
             console.log('开始发送邮件...');
-            await sendEmail(email, generatedDirPath);
+            await sendEmail(email, generatedDirPath, {
+                fun,
+                type,
+            });
             console.log('邮件发送成功');
         } else {
             console.warn('未提供邮箱，跳过发送邮件。');

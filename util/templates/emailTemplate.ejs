@@ -1,6 +1,144 @@
-<html>
-<body>
-    <h1><%= title %></h1>
-    <p><%= message %></p>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= subject %></title>
+  </head>
+  <body style="margin:0;padding:0;background:#f7f8fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#14261b;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f8fb;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;border-spacing:0;">
+            <tr>
+              <td style="padding:0;">
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  style="border-radius:28px;overflow:hidden;background:linear-gradient(110deg, rgba(6, 22, 11, 0.96) 0%, rgba(6, 20, 11, 0.88) 34%, rgba(5, 16, 28, 0.82) 100%);box-shadow:0 24px 56px rgba(18,35,22,0.16);"
+                >
+                  <tr>
+                    <td style="padding:38px 40px 32px;">
+                      <div style="display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#8fd38a;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">
+                        Plant regeneration spatial atlas
+                      </div>
+                      <h1 style="margin:18px 0 12px;font-size:34px;line-height:1.18;color:#f6fff4;font-weight:700;">
+                        <%= title %>
+                      </h1>
+                      <p style="margin:0;max-width:600px;font-size:16px;line-height:1.75;color:rgba(246,255,244,0.82);">
+                        <%= intro %>
+                      </p>
+
+                      <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:26px;">
+                        <tr>
+                          <% stats.forEach(function(stat) { %>
+                            <td style="padding:0 12px 12px 0;">
+                              <div style="min-width:128px;padding:16px 18px;border-radius:18px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);">
+                                <div style="font-size:24px;font-weight:700;color:#ffffff;"><%= stat.value %></div>
+                                <div style="margin-top:6px;font-size:13px;line-height:1.5;color:rgba(220,241,220,0.76);"><%= stat.label %></div>
+                              </div>
+                            </td>
+                          <% }) %>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top:18px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-radius:24px;background:#ffffff;border:1px solid rgba(19,36,22,0.08);box-shadow:0 16px 42px rgba(25,44,29,0.08);">
+                  <tr>
+                    <td style="padding:30px 32px;">
+                      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2f6d2d;">
+                        Export package
+                      </div>
+                      <h2 style="margin:10px 0 12px;font-size:22px;line-height:1.35;color:#15261a;">
+                        Attached deliverables
+                      </h2>
+                      <p style="margin:0 0 18px;font-size:15px;line-height:1.8;color:#55655a;">
+                        <%= summaryText %>
+                      </p>
+
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:18px;table-layout:fixed;">
+                        <% for (let i = 0; i < highlights.length; i += 2) { %>
+                          <tr>
+                            <% for (let j = 0; j < 2; j++) { %>
+                              <% const item = highlights[i + j]; %>
+                              <td width="50%" valign="top" style="width:50%;padding:0 <%= j === 0 ? '10px' : '0' %> 12px <%= j === 0 ? '0' : '10px' %>;">
+                                <% if (item) { %>
+                                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="height:100%;">
+                                    <tr>
+                                      <td style="padding:16px 18px;border-radius:18px;background:rgba(255,255,255,0.86);border:1px solid rgba(18,35,22,0.08);box-shadow:0 12px 28px rgba(30,53,34,0.05);font-size:14px;line-height:1.7;color:#4f5e54;word-break:break-word;white-space:normal;">
+                                        <%= item %>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                <% } %>
+                              </td>
+                            <% } %>
+                          </tr>
+                        <% } %>
+                      </table>
+
+                      <p style="margin:0 0 18px;font-size:15px;line-height:1.8;color:#55655a;">
+                        <%= attachmentText %>
+                      </p>
+
+                      <div style="padding:16px 18px;border-radius:18px;background:linear-gradient(135deg, rgba(143,211,138,0.18), rgba(118,170,255,0.08));border:1px solid rgba(112,177,108,0.18);">
+                        <% if (artifactList.length > 0) { %>
+                          <ul style="margin:0;padding-left:18px;">
+                            <% artifactList.forEach(function(file) { %>
+                              <li style="margin:0 0 8px;font-size:14px;line-height:1.65;color:#15261a;">
+                                <%= file %>
+                              </li>
+                            <% }) %>
+                          </ul>
+                        <% } else { %>
+                          <p style="margin:0;font-size:14px;line-height:1.7;color:#15261a;">
+                            The result archive is attached to this email.
+                          </p>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top:18px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-radius:24px;background:radial-gradient(circle at 20% 10%, rgba(146,216,138,0.14), transparent 28%), linear-gradient(180deg,#081a0e 0%,#0d2415 100%);box-shadow:0 18px 40px rgba(16,35,22,0.18);">
+                  <tr>
+                    <td style="padding:28px 32px;">
+                      <h3 style="margin:0 0 10px;font-size:20px;line-height:1.35;color:#f2fff2;">
+                        Plant Single Cell Spatial Atlas
+                      </h3>
+                      <p style="margin:0 0 16px;font-size:14px;line-height:1.8;color:rgba(242,255,242,0.84);">
+                        <%= footerMessage %>
+                      </p>
+                      <table role="presentation" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td style="padding-right:18px;font-size:13px;line-height:1.7;color:rgba(191,238,187,0.82);">
+                            Website: <span style="color:#ffffff;"><%= website %></span>
+                          </td>
+                          <td style="font-size:13px;line-height:1.7;color:rgba(191,238,187,0.82);">
+                            Contact: <span style="color:#ffffff;"><%= contactEmail %></span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>

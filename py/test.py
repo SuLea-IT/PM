@@ -11,7 +11,6 @@ import subprocess
 from PIL import Image
 import stat
 import platform
-import pwd
 
 Image.MAX_IMAGE_PIXELS = None
 save_path = sys.argv[2]
@@ -32,9 +31,6 @@ def save_figure(adata, save_path, filename, plot_type='umap', key=None, dpi=300,
     elif plot_type == 'cluster':
         if platform.system() == "Linux" or platform.system() == "Darwin":
             os.chmod(result_dir, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-            uid = pwd.getpwnam("xjh").pw_uid
-            gid = pwd.getpwnam("songxiehai").pw_gid
-            os.chown(result_dir, uid, gid)
         cluster_labels = adata.obs['leiden']
         csv_file_path = os.path.normpath(os.path.join(save_path, "cluster.csv"))
         save_dir = os.path.normpath(os.path.join(save_path, "result"))

@@ -11,7 +11,6 @@ import subprocess
 from PIL import Image
 import stat
 import platform
-import pwd
 Image.MAX_IMAGE_PIXELS = None
 save_path = sys.argv[2]
 mat = sys.argv[1]
@@ -97,9 +96,6 @@ if not os.path.exists(result_dir):
     os.makedirs(result_dir)
     if platform.system() == "Linux" or platform.system() == "Darwin":  # 如果是类 Unix 系统（Linux 或 macOS）
         os.chmod(result_dir, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-        uid = pwd.getpwnam("xjh").pw_uid
-        gid = pwd.getpwnam("songxiehai").pw_gid
-        os.chown(result_dir, uid, gid)
 sc_test = sc.read_10x_mtx(path=mat)
 coord = f"{mat}/barcodes_pos.tsv.gz"
 sc_test = sc.read_10x_mtx(path=mat)
