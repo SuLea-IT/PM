@@ -1,42 +1,20 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const warnedMessages = new Set();
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    waitForConnections: true,
-    connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
-    queueLimit: 0,
-    connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT || 10000),
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
-});
+function warnOnce(message) {
+    if (warnedMessages.has(message)) return;
+    warnedMessages.add(message);
+    console.warn(message);
+}
 
-const findUserById = (userId) => {
-    return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM users WHERE id = ?', [userId], (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results[0]);
-            }
-        });
-    });
-};
+async function findUserById(_userId) {
+    warnOnce('[db disabled] findUserById() was called, returning null.');
+    return null;
+}
 
-const query = (sql, params) => {
-    return new Promise((resolve, reject) => {
-        pool.query(sql, params, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
-    });
-};
+async function query(_sql, _params) {
+    warnOnce('[db disabled] query() was called, skipping database access.');
+    return [];
+}
 
 module.exports = {
     findUserById,

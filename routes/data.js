@@ -6,6 +6,7 @@ const { spawn } = require('child_process');
 const router = express.Router();
 
 const BASE_DIR = '/home/ubuntu/newpyF/Beta';
+const SHARED_DATA_ROOT = process.env.SHARED_DATA_ROOT || '/home/ubuntu/newpyF/F';
 const BACKEND_ROOT = path.resolve(__dirname, '..');
 const DATA_ROOT = path.join(BASE_DIR, 'data');
 const FRONT_PUBLIC_IN_BASE = path.join(BASE_DIR, 'PM-System-Beta-Front', 'public');
@@ -33,6 +34,7 @@ function getDataRoots() {
         .filter(Boolean);
     const roots = [
         ...envRoots,
+        SHARED_DATA_ROOT,
         DATA_ROOT,
         path.join(BASE_DIR, 'public'),
         path.join(BACKEND_ROOT, 'public'),
@@ -43,30 +45,40 @@ function getDataRoots() {
     return [...new Set(roots)];
 }
 
-function resolveDatasetDir(dataSource, dataType) {
+function hasGeneSource(datasetDir) {
+    if (!datasetDir || !fs.existsSync(datasetDir) || !fs.statSync(datasetDir).isDirectory()) {
+        return false;
+    }
+    if (fs.existsSync(path.join(datasetDir, 'gene.csv'))) {
+        return true;
+    }
+    return fs.readdirSync(datasetDir).some((name) => name.toLowerCase().endsWith('.h5ad'));
+}
+
+function resolveDatasetDir(dataSource, dataType, options = {}) {
+    const { requireGenes = false } = options;
     const checked = [];
+    let fallbackDir = null;
+
     for (const root of getDataRoots()) {
         const candidate = path.join(root, dataSource, dataType);
         checked.push(candidate);
-        if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
-            return { datasetDir: candidate, checked };
+        if (!fs.existsSync(candidate) || !fs.statSync(candidate).isDirectory()) {
+            continue;
+        }
+        if (!fallbackDir) {
+            fallbackDir = candidate;
+        }
+        if (!requireGenes || hasGeneSource(candidate)) {
+            return { datasetDir: candidate, checked, geneReady: hasGeneSource(candidate) };
         }
     }
-    return { datasetDir: null, checked };
-}
 
-function resolveClusterJsonFile(dataSource, dataType) {
-    const checked = [];
-    for (const root of getDataRoots()) {
-        const candidate = dataType
-            ? path.join(root, dataSource, dataType, 'clusters.json')
-            : path.join(root, dataSource, 'clusters.json');
-        checked.push(candidate);
-        if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-            return { filePath: candidate, checked };
-        }
+    if (fallbackDir) {
+        return { datasetDir: fallbackDir, checked, geneReady: hasGeneSource(fallbackDir) };
     }
-    return { filePath: null, checked };
+
+    return { datasetDir: null, checked, geneReady: false };
 }
 
 function listDatasetTypes(dataSource) {
@@ -133,78 +145,27 @@ router.get('/types', (req, res) => {
     }
 });
 
-router.post('/cluster-meta', async (req, res) => {
-    try {
-        const dataSource = sanitizeName(req.body.dataSource || '');
-        const dataType = sanitizeName(req.body.dataType || '');
-        const clusterId = String(req.body.clusterId ?? '').trim();
-        const name = typeof req.body.name === 'string' ? req.body.name.trim() : undefined;
-        const color = typeof req.body.color === 'string' ? req.body.color.trim() : undefined;
-
-        if (!dataSource) {
-            res.status(400).json({ success: false, message: 'dataSource is required' });
-            return;
-        }
-        if (!clusterId) {
-            res.status(400).json({ success: false, message: 'clusterId is required' });
-            return;
-        }
-        if (name !== undefined && !name) {
-            res.status(400).json({ success: false, message: 'name cannot be empty' });
-            return;
-        }
-
-        const { filePath, checked } = resolveClusterJsonFile(dataSource, dataType || '');
-        if (!filePath) {
-            res.status(404).json({ success: false, message: 'clusters.json not found', checked });
-            return;
-        }
-
-        const raw = await fs.promises.readFile(filePath, 'utf-8');
-        const json = JSON.parse(raw);
-        const cluster = json[clusterId];
-
-        if (!cluster || typeof cluster !== 'object') {
-            res.status(404).json({ success: false, message: 'cluster not found', clusterId });
-            return;
-        }
-
-        if (name !== undefined) {
-            cluster.name = name;
-        }
-        if (color !== undefined) {
-            cluster.color = color;
-        }
-
-        const tempFile = `${filePath}.tmp`;
-        await fs.promises.writeFile(tempFile, JSON.stringify(json), 'utf-8');
-        await fs.promises.rename(tempFile, filePath);
-
-        res.json({
-            success: true,
-            data: {
-                clusterId,
-                name: cluster.name,
-                color: cluster.color,
-                filePath,
-            },
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
 router.get('/:dataType/genes', async (req, res) => {
     try {
         const dataSource = sanitizeName(req.query.data || 'spatial');
         const dataType = sanitizeName(req.params.dataType);
         const search = String(req.query.search || '').trim().toLowerCase();
 
-        const { datasetDir, checked } = resolveDatasetDir(dataSource, dataType);
+        const { datasetDir, checked, geneReady } = resolveDatasetDir(dataSource, dataType, { requireGenes: true });
         if (!datasetDir) {
             res.status(404).json({
                 success: false,
                 message: 'dataset not found',
+                data: [],
+                checked,
+            });
+            return;
+        }
+
+        if (!geneReady) {
+            res.json({
+                success: true,
+                message: `No gene.csv or h5ad was found for ${dataSource}/${dataType}`,
                 data: [],
                 checked,
             });

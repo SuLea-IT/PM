@@ -1,9 +1,10 @@
-const fsExtra = require('fs-extra');
+﻿const fsExtra = require('fs-extra');
 const path = require('path');
-const db = require('../config/db');
 const crypto = require('crypto');
 require('dotenv').config();
 const { mergeChunks } = require('./fileHelpers');
+const { appendJsonLine } = require('./localStateLogger');
+const { runPythonScript } = require('./pythonScriptRunner');
 
 const calculateMD5 = (data) => crypto.createHash('md5').update(data).digest('hex');
 
@@ -46,23 +47,23 @@ const areAllChunksUploaded = async (chunkDir, total) => {
 };
 
 const saveUploadRecord = async ({ timestamp, ip, fileName, finalOutputPath, fileSize, firstChunkMD5, type, number }) => {
-    const sql = 'INSERT INTO files (timestamp, ip, filename, filepath, file_size, first_chunk_md5, request_type, file_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [timestamp, ip, fileName, finalOutputPath, fileSize, firstChunkMD5, type, number];
-
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-            await db.query(sql, params);
-            return null;
-        } catch (error) {
-            console.error(`Failed to save upload record (attempt ${attempt}):`, error);
-            if (attempt === 3) {
-                return `Database write failed: ${error.code || error.message}`;
-            }
-            await new Promise((resolve) => setTimeout(resolve, attempt * 500));
-        }
+    try {
+        const logPath = await appendJsonLine('upload-records.jsonl', {
+            timestamp,
+            ip,
+            filename: fileName,
+            filepath: finalOutputPath,
+            file_size: fileSize,
+            first_chunk_md5: firstChunkMD5,
+            request_type: type,
+            file_count: number,
+        });
+        console.log(`Upload record saved locally: ${logPath}`);
+        return null;
+    } catch (error) {
+        console.error('Failed to save local upload record:', error);
+        return `Local upload log write failed: ${error.code || error.message}`;
     }
-
-    return 'Database write failed';
 };
 
 const checkAllFilesUploaded = (type, totalFiles, currentFileIndex) => {
@@ -115,6 +116,9 @@ const sanitizeFileName = (name) => String(name || '').replace(/[^a-zA-Z0-9-_]/g,
 
 const readAndFilterConfigFile = async (storagePath) => {
     const configFilePath = path.join(storagePath, 'config.txt');
+    if (!(await fsExtra.pathExists(configFilePath))) {
+        return null;
+    }
     const fileContent = await fsExtra.readFile(configFilePath, 'utf-8');
     return fileContent
         .split('\n')
@@ -123,6 +127,9 @@ const readAndFilterConfigFile = async (storagePath) => {
 };
 
 function extractPointSize(configText) {
+    if (!configText) {
+        return null;
+    }
     const regex = /PointSize\s*=\s*(\d+)/i;
     const match = configText.match(regex);
     if (match && match[1]) {
@@ -131,8 +138,29 @@ function extractPointSize(configText) {
     throw new Error('PointSize was not found in config.txt');
 }
 
+function startAnalysisInBackground({ fun, type, finalFolder, storagePath, email, pointSize }) {
+    const numericFun = Number(fun);
+    const numericType = Number(type);
+
+    runPythonScript(
+        numericFun,
+        numericType,
+        finalFolder,
+        storagePath,
+        email,
+        null,
+        pointSize,
+    )
+        .then((generatedDirPath) => {
+            console.log(`Analysis completed successfully: ${generatedDirPath}`);
+        })
+        .catch((error) => {
+            console.error('Automatic analysis failed:', error);
+        });
+}
+
 const handleFileUpload = async (req, _fileExtension) => {
-    const { index, totalChunks, fileName, type, number, currentFileIndex, totalFiles, fun } = req.body;
+    const { index, totalChunks, fileName, type, number, currentFileIndex, totalFiles, fun, email } = req.body;
     const total = Number.parseInt(totalChunks, 10);
     const indexInt = Number.parseInt(index, 10);
 
@@ -236,7 +264,23 @@ const handleFileUpload = async (req, _fileExtension) => {
                 const storagePath = await createStorageStructure(timestamp, ip, type, type, fun);
                 console.log(`Created storage path: ${storagePath}`);
                 const configText = await readAndFilterConfigFile(finalFolder);
-                extractPointSize(configText);
+                let pointSize = null;
+                if (configText) {
+                    pointSize = extractPointSize(configText);
+                }
+                if (pointSize == null) {
+                    console.log('config.txt not found or PointSize missing, skipping optional post-upload PointSize parsing.');
+                }
+
+                startAnalysisInBackground({
+                    fun,
+                    type,
+                    finalFolder,
+                    storagePath,
+                    email,
+                    pointSize,
+                });
+                console.log('Analysis task started in background.');
             } catch (postProcessError) {
                 console.error('Post-upload processing failed:', postProcessError);
                 warnings.push(`Post-upload processing failed: ${postProcessError.message}`);

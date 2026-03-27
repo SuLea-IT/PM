@@ -1,5 +1,3 @@
-// util/emailSender.js
-
 const nodemailer = require('nodemailer');
 const ejs = require('ejs');
 const path = require('path');
@@ -8,10 +6,10 @@ const fs = require('fs');
 require('dotenv').config();
 
 const sendEmail = async (to, dirPath) => {
-    let subject = "xx网站的结果";
+    const subject = process.env.EMAIL_SUBJECT || 'Plant Single Cell Spatial Atlas results';
     const templateData = {
-        title: "您好！，您的数据已经运行完成",
-        message: "您的数据结果在压缩包内"
+        title: process.env.EMAIL_TITLE || '您好，您的数据已经运行完成',
+        message: process.env.EMAIL_MESSAGE || '您的数据结果已整理为压缩包附件，请注意查收。',
     };
 
     try {
@@ -19,14 +17,11 @@ const sendEmail = async (to, dirPath) => {
         const zipFilePath = path.join(__dirname, '../', zipFileName);
 
         const archive = archiver('zip', {
-            zlib: { level: 9 }
+            zlib: { level: 9 },
         });
 
         const output = fs.createWriteStream(zipFilePath);
-
         archive.pipe(output);
-        console.log(dirPath)
-        // 使用完整路径压缩指定的文件夹内的所有文件和子文件夹
         archive.directory(path.resolve(dirPath), path.basename(dirPath));
 
         await new Promise((resolve, reject) => {
@@ -35,41 +30,41 @@ const sendEmail = async (to, dirPath) => {
             archive.finalize();
         });
 
-        // 配置邮件发送器
-        let transporter = nodemailer.createTransport({
-            host: 'smtp.vip.163.com',
-            port: 465,
-            secure: true,
+        const smtpHost = process.env.SMTP_HOST || 'smtp.163.com';
+        const smtpPort = Number(process.env.SMTP_PORT || 465);
+        const smtpSecure = String(process.env.SMTP_SECURE || 'true') !== 'false';
+
+        const transporter = nodemailer.createTransport({
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpSecure,
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+                pass: process.env.EMAIL_PASS,
+            },
         });
 
-        // 渲染模板
         const templatePath = path.join(__dirname, 'templates', 'emailTemplate.ejs');
         const htmlContent = await ejs.renderFile(templatePath, templateData);
 
-        // 邮件选项
-        let mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: to,
-            subject: subject,
+        const mailOptions = {
+            from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            to,
+            subject,
             html: htmlContent,
             attachments: [
                 {
                     filename: zipFileName,
-                    path: zipFilePath
-                }
-            ]
+                    path: zipFilePath,
+                },
+            ],
         };
 
-        // 发送邮件
-        let info = await transporter.sendMail(mailOptions);
-        console.log('邮件发送成功: ' + info.response);
-        fs.unlinkSync(zipFilePath); // 删除压缩包文件
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`邮件发送成功: ${info.response}`);
+        fs.unlinkSync(zipFilePath);
     } catch (error) {
-        console.error('处理邮件时出错: ' + error);
+        console.error(`处理邮件时出错: ${error.message || error}`);
         throw error;
     }
 };
