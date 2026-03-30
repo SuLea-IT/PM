@@ -1,6 +1,6 @@
 // src/config/apiConfig.js
 
-const baseURL = 'http://54.245.89.178:3001/api';
+const baseURL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
 export const apiConfig = {
   baseURL: baseURL,
@@ -15,14 +15,11 @@ export const apiConfig = {
       body: JSON.stringify({ genes })
     }),
     getSampleGenes: (dataType, searchTerm = '', dataSource = 'spatial') => {
-      const url = new URL(`${baseURL}/data/${dataType}/genes`);
-      if (dataSource) {
-        url.searchParams.append('data', dataSource);
-      }
-      if (searchTerm) {
-        url.searchParams.append('search', searchTerm);
-      }
-      return url.toString();
+      const params = new URLSearchParams();
+      if (dataSource) params.append('data', dataSource);
+      if (searchTerm) params.append('search', searchTerm);
+      const queryString = params.toString();
+      return `${baseURL}/data/${dataType}/genes${queryString ? `?${queryString}` : ''}`;
     },
   }
 };

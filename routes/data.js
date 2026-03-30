@@ -10,8 +10,8 @@ const BASE_DIR = '/home/ubuntu/newpyF/Beta';
 const SHARED_DATA_ROOT = process.env.SHARED_DATA_ROOT || '/home/ubuntu/newpyF/F';
 const BACKEND_ROOT = path.resolve(__dirname, '..');
 const DATA_ROOT = path.join(BASE_DIR, 'data');
-const FRONT_PUBLIC_IN_BASE = path.join(BASE_DIR, 'PM-System-Beta-Front', 'public');
-const FRONT_PUBLIC_SIBLING = path.resolve(BACKEND_ROOT, '..', 'PM-System-Beta-Front', 'public');
+const FRONT_PUBLIC_IN_BASE = path.join(BASE_DIR, 'PM-System-Beta', 'frontend', 'public');
+const FRONT_PUBLIC_LOCAL = path.join(BACKEND_ROOT, 'frontend', 'public');
 const PYTHON_PATH = resolvePythonInterpreter();
 const LIST_GENES_SCRIPT_CANDIDATES = [
     path.join(BASE_DIR, 'py', 'util', 'list_genes.py'),
@@ -38,7 +38,7 @@ function getDataRoots() {
         path.join(BASE_DIR, 'public'),
         path.join(BACKEND_ROOT, 'public'),
         FRONT_PUBLIC_IN_BASE,
-        FRONT_PUBLIC_SIBLING,
+        FRONT_PUBLIC_LOCAL,
     ];
     // keep order, remove duplicates
     return [...new Set(roots)];

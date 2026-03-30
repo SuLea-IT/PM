@@ -5,5 +5,9 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   transpileDependencies: true,
   base: './',
+  build: {
+    outDir: '../public',
+    emptyOutDir: false,
+  },
   plugins: [vue()],
 })
