@@ -4,6 +4,7 @@ import References from '../components/References.vue'
 import Forum from '../components/Forum.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import GlobalLayout from '../layouts/GlobalLayout.vue'
+import { trackVisitorRoute } from '../utils/visitorTracker'
 
 const routes = [
     {
@@ -23,6 +24,10 @@ const routes = [
                 path: 'references',
                 component: References
             },
+            {
+                path: '/VisitorStats',
+                component: () => import('../views/VisitorStats.vue')
+            },
         ]
     },
     {
@@ -40,6 +45,10 @@ const routes = [
             {
                 path: 'UploadData',
                 component: () => import('../views/UploadData.vue')
+            },
+            {
+                path: 'VisitorStats',
+                redirect: '/VisitorStats'
             }
         ]
     }
@@ -48,6 +57,10 @@ const routes = [
 const router = createRouter({
     history: createWebHashHistory(),
     routes
+})
+
+router.afterEach((to) => {
+    trackVisitorRoute(to)
 })
 
 export default router

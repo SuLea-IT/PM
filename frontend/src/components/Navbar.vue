@@ -9,7 +9,7 @@
           <router-link to="/about">{{ $t("about") }}</router-link>
         </li>
         <li>
-          <router-link to="/analyse">{{ $t("analyse") }}</router-link>
+          <router-link to="/analyse/Platform">{{ $t("analyse") }}</router-link>
         </li>
         <li>
           <a

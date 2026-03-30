@@ -10,6 +10,8 @@ console.log('Initializing server...');
 const app = express();
 const port = process.env.PORT || 3001;
 
+app.set('trust proxy', true);
+
 const corsOptions = {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

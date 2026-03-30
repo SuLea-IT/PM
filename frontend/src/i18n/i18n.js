@@ -121,6 +121,7 @@ const messages = {
     h5adData: "H5ad data",
     singleGeneMapping: "Single Gene Mapping",
     multiGeneMapping: "Multi-gene Mapping",
+    visitorStats: "Visitor Stats",
   },
   zh: {
     title: "空间转录组数据库",
@@ -240,6 +241,7 @@ const messages = {
     h5adData: "H5ad 数据",
     singleGeneMapping: "单基因映射",
     multiGeneMapping: "多基因映射",
+    visitorStats: "访客统计",
   },
 };
 

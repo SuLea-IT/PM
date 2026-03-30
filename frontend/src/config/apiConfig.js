@@ -14,6 +14,7 @@ export const apiConfig = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ genes })
     }),
+    getVisitorSummary: () => `${baseURL}/analytics/summary`,
     getSampleGenes: (dataType, searchTerm = '', dataSource = 'spatial') => {
       const params = new URLSearchParams();
       if (dataSource) params.append('data', dataSource);
