@@ -231,7 +231,7 @@ const exampleDescription = computed(() =>
     : "Download a ready-to-use zip package to quickly see the expected file organization and naming rules for the UploadData workflow."
 );
 const exampleButtonText = computed(() =>
-  locale.value === "zh" ? "下载示例数据" : "Download sample data"
+  locale.value === "zh" ? "下载示例数据" : "Download data"
 );
 
 const requiredFileLabels = computed(() =>
