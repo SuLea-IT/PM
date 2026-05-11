@@ -4,6 +4,7 @@ const messages = {
   en: {
     title: "Spatial transcriptome database",
     about: "About",
+    home:"Home",
     analyse: "Analyse",
     forum: "Forum",
     english: "English",
@@ -86,6 +87,7 @@ const messages = {
     geneAnalysis: "Gene Analysis",
     singleGene: "Single Gene",
     geneSet: "Gene Set",
+    exampleGenes: "Example genes",
     inputGeneSet: "Input Gene Set",
     enterGeneSet: "Enter Gene Set",
     showClusterBackground: "Show Cluster Background",
@@ -207,6 +209,7 @@ const messages = {
     geneAnalysis: "基因分析",
     singleGene: "单个基因",
     geneSet: "基因集",
+    exampleGenes: "示例基因",
     inputGeneSet: "输入基因集",
     enterGeneSet: "输入基因集",
     showClusterBackground: "显示聚类背景",

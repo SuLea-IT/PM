@@ -9,12 +9,16 @@ import { trackVisitorRoute } from '../utils/visitorTracker'
 const routes = [
     {
         path: '/',
-        redirect: '/about',
+        redirect: '/home',
         component: GlobalLayout,
         children: [
             {
-                path: 'about',
+                path: 'home',
                 component: About
+            },
+            {
+                path: 'about',
+                redirect: '/home'
             },
             {
                 path: 'forum',

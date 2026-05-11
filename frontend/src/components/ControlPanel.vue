@@ -93,14 +93,15 @@
             :value="item">
           </el-option>
         </el-select>
-        <div v-if="geneTags.length > 0" class="gene-tags-wrap">
-          <span class="gene-tags-title">Dataset genes:</span>
+        <div v-if="exampleGenes.length > 0" class="example-genes-wrap">
+          <span class="gene-tags-title">{{ $t("exampleGenes") }}:</span>
           <el-tag
-            v-for="gene in geneTags"
+            v-for="gene in exampleGenes"
             :key="gene"
-            class="gene-tag-item"
+            class="gene-tag-item example-gene-tag"
             size="small"
-            @click="onGeneTagClick(gene)"
+            effect="plain"
+            @click="onExampleGeneClick(gene)"
           >
             {{ gene }}
           </el-tag>
@@ -183,9 +184,9 @@ export default {
       minColor: '#0000ff',
       midColor: '#ffff00',
       maxColor: '#ff0000',
+      exampleGenes: [],
       sampleGenes: [],
       geneSearchLoading: false,
-      geneTags: [],
       dataSourceOptions: [
         { label: "Cluster", value: "cluster" },
         { label: "umap", value: "umap" },
@@ -196,39 +197,24 @@ export default {
     };
   },
   methods: {
-    applyDefaultGeneFromTags(tags) {
-      if (
-        this.selectedDataSource === 'xenium' &&
-        this.selectedMode === 'gene' &&
-        this.geneMode === 'single' &&
-        Array.isArray(tags) &&
-        tags.length > 0 &&
-        !this.inputGeneName
-      ) {
-        this.inputGeneName = tags[0];
-        this.$emit("gene-input", this.inputGeneName);
-      }
-    },
-    async loadGeneTags(searchTerm = '', limit = 3) {
+    async loadExampleGenes() {
       if (!this.selectedDataType) {
-        this.geneTags = [];
+        this.exampleGenes = [];
         return;
       }
       try {
-        const url = apiConfig.endpoints.getSampleGenes(
+        const url = apiConfig.endpoints.getExampleGenes(
           this.selectedDataType,
-          searchTerm,
           this.selectedDataSource
         );
         const response = await axios.get(url);
         if (response.data.success && Array.isArray(response.data.data)) {
-          this.geneTags = response.data.data.slice(0, limit);
-          this.applyDefaultGeneFromTags(this.geneTags);
+          this.exampleGenes = response.data.data;
         } else {
-          this.geneTags = [];
+          this.exampleGenes = [];
         }
       } catch (error) {
-        this.geneTags = [];
+        this.exampleGenes = [];
       }
     },
     async searchGenes(query) {
@@ -243,23 +229,19 @@ export default {
           const response = await axios.get(url);
           if (response.data.success) {
             this.sampleGenes = response.data.data;
-            this.geneTags = this.sampleGenes.slice(0, 3);
-            this.applyDefaultGeneFromTags(this.geneTags);
           }
         } catch (error) {
           console.error("Failed to search genes:", error);
           this.sampleGenes = [];
-          this.geneTags = [];
         } finally {
           this.geneSearchLoading = false;
         }
       } else {
         this.sampleGenes = [];
-        this.loadGeneTags();
       }
     },
     onDataSourceChange(value) {
-      this.geneTags = [];
+      this.exampleGenes = [];
       if (value !== 'umap' && this.showClusterLabels) {
         this.showClusterLabels = false;
         this.onShowClusterLabelsChange(false);
@@ -271,10 +253,12 @@ export default {
       this.$emit("update:dataSource", value);
     },
     onDataTypeChange(value) {
-        this.$emit("update:dataType", value);
-        this.sampleGenes = []; // Clear gene list on data type change
-        this.inputGeneName = ''; // Clear selected gene
-        this.loadGeneTags();
+      this.$emit("update:dataType", value);
+      this.sampleGenes = []; // Clear gene list on data type change
+      this.inputGeneName = ''; // Clear selected gene
+      if (this.selectedMode === 'gene' && this.geneMode === 'single') {
+        this.loadExampleGenes();
+      }
     },
     onModeChange(value) {
       this.$emit("update:mode", value);
@@ -294,8 +278,11 @@ export default {
         this.$emit("gene-set-input", genes);
       }
     },
-    onGeneTagClick(gene) {
+    onExampleGeneClick(gene) {
       this.inputGeneName = gene;
+      this.geneSet = '';
+      this.$emit("gene-set-input", []);
+      this.$emit("gene-input", gene);
     },
     onDownloadRequest() {
       this.$emit("download-request");
@@ -367,12 +354,12 @@ export default {
       },
       selectedMode(newVal) {
         if (newVal === 'gene' && this.geneMode === 'single') {
-          this.loadGeneTags();
+          this.loadExampleGenes();
         }
       },
       geneMode(newVal) {
         if (newVal === 'single' && this.selectedMode === 'gene') {
-          this.loadGeneTags();
+          this.loadExampleGenes();
         }
       }
   }
@@ -477,11 +464,12 @@ export default {
 .full-width-select {
   width: 100%;
 }
-.gene-tags-wrap {
+.example-genes-wrap {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
+  padding: 2px 0 4px;
 }
 .gene-tags-title {
   font-size: 12px;
@@ -489,6 +477,14 @@ export default {
 }
 .gene-tag-item {
   cursor: pointer;
+}
+.example-gene-tag {
+  border-color: var(--el-color-primary);
+  color: var(--el-color-primary);
+  background: transparent;
+}
+.example-gene-tag:hover {
+  background: var(--el-color-primary-light-9);
 }
 
 .panel-footer {

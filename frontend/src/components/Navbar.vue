@@ -6,7 +6,7 @@
     <div class="navbar-center">
       <ul class="navbar-menu">
         <li>
-          <router-link to="/about">{{ $t("about") }}</router-link>
+          <router-link to="/home">{{ $t("home") }}</router-link>
         </li>
         <li>
           <router-link to="/analyse/Platform">{{ $t("analyse") }}</router-link>
@@ -23,42 +23,6 @@
       </ul>
     </div>
     <div class="navbar-right">
-      <el-popover
-        v-model:visible="popoverVisible"
-        placement="bottom"
-        width="60"
-        trigger="click"
-      >
-        <template #reference>
-          <div class="language-selector">
-            <svg
-              class="language-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              width="1.2em"
-              height="1.2em"
-              data-v-63d067da=""
-            >
-              <path
-                fill="currentColor"
-                d="m18.5 10l4.4 11h-2.155l-1.201-3h-4.09l-1.199 3h-2.154L16.5 10h2zM10 2v2h6v2h-1.968a18.222 18.222 0 0 1-3.62 6.301a14.864 14.864 0 0 0 2.336 1.707l-.751 1.878A17.015 17.015 0 0 1 9 13.725a16.676 16.676 0 0 1-6.201 3.548l-.536-1.929a14.7 14.7 0 0 0 5.327-3.042A18.078 18.078 0 0 1 4.767 8h2.24A16.032 16.032 0 0 0 9 10.877a16.165 16.165 0 0 0 2.91-4.876L2 6V4h6V2h2zm7.5 10.885L16.253 16h2.492L17.5 12.885z"
-              ></path>
-            </svg>
-          </div>
-        </template>
-        <div class="language-options">
-          <div
-            v-for="lang in languages"
-            :key="lang.value"
-            :class="{ 'active-language': localeLabel === lang.label }"
-            @click="changeLanguage(lang.value)"
-          >
-            {{ lang.label }}
-          </div>
-        </div>
-      </el-popover>
       <span class="navbar-button" @click="toggleDarkMode()">
         <Toggle :is-dark-mode="isDarkMode"></Toggle>
       </span>
@@ -68,7 +32,7 @@
 
 <script setup>
 import { useI18n } from "vue-i18n";
-import { computed, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { useToggle } from "@vueuse/core";
 import { isDark } from "../theme/composables/dark";
 import Toggle from "../components/ToggleDark.vue";
@@ -81,29 +45,13 @@ const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
 };
 
-const { locale, t } = useI18n();
-
-const languages = computed(() => [
-  { label: t("english"), value: "en" },
-  { label: t("chinese"), value: "zh" },
-]);
-
-const localeLabel = ref(
-  languages.value.find((lang) => lang.value === locale.value)?.label
-);
-
-const popoverVisible = ref(false);
+const { locale } = useI18n();
 
 watchEffect(() => {
-  localeLabel.value = languages.value.find(
-    (lang) => lang.value === locale.value
-  )?.label;
+  if (locale.value !== "en") {
+    locale.value = "en";
+  }
 });
-
-const changeLanguage = (newLocale) => {
-  locale.value = newLocale;
-  popoverVisible.value = false;
-};
 </script>
 
 <style scoped>
@@ -179,44 +127,5 @@ const changeLanguage = (newLocale) => {
   align-items: center;
   gap: 10px;
   width: 20%;
-}
-
-.language-selector {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  margin: 0 10px;
-  box-sizing: border-box;
-  margin-right: -20px;
-}
-
-.language-icon {
-  width: 28px;
-  height: 28px;
-  margin-right: 8px;
-}
-
-.language-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.language-options div {
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-}
-
-.language-options div:hover {
-  background-color: var(--el-navbar-hover-color);
-  color: var(--el-navbar-color);
-}
-
-.active-language {
-  font-weight: bold;
-  color: #545454;
-  background-color: #b6e8ff;
-  border-radius: 4px;
 }
 </style>

@@ -9,8 +9,8 @@
       <div class="hero-glow hero-glow-right"></div>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">Single Cell Spatial Platform</span>
-          <h1>Single Cell Spatial Platform</h1>
+          <span class="eyebrow">Tomato callus</span>
+          <h1>Tomato callus</h1>
           <p class="hero-description">
             A multimodal spatiotemporal atlas that tracks tomato de novo
             regeneration from wounding to shoot organogenesis with
@@ -146,7 +146,7 @@
       <div class="container">
         <div class="section-heading centered">
           <span class="section-kicker">Portal modules</span>
-          <h2>Two direct entrances for atlas browsing and custom workflows</h2>
+          <h2>Direct entrances for atlas browsing and custom workflows</h2>
         </div>
 
         <div class="module-grid module-grid-single">
@@ -167,6 +167,30 @@
             </div>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section class="section-block publication-section">
+      <div class="container">
+        <article class="citation-card publication-card">
+          <span class="section-kicker">Citation</span>
+          <div class="citation-list">
+            <p
+              v-for="citation in citations"
+              :key="citation"
+              class="publication-citation"
+              v-html="citation"
+            ></p>
+          </div>
+          <a
+            class="publication-link"
+            :href="citationUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read full article
+          </a>
+        </article>
       </div>
     </section>
 
@@ -195,8 +219,8 @@
 
     <section class="contact-section">
       <div class="container contact-shell">
-        <div class="contact-badge">S</div>
-        <h3>Single Cell Spatial Platform</h3>
+        <div class="contact-badge">T</div>
+        <h3>Tomato callus</h3>
         <p class="contact-subtitle">
           A spatiotemporal single-cell atlas for tomato regeneration and plant
           spatial transcriptomics.
@@ -247,6 +271,11 @@ export default {
       storyFigure,
       mechanismFigure,
       clusterFigure,
+      citationUrl: "https://www.biorxiv.org/content/10.64898/2026.02.20.705279v1.full",
+      citations: [
+        "Song, X., Zhang, S., Yue, Z., Liu, Y., Chen, S., Niu, Y., Shi, Y., Yang, H., Xu, J., Miao, Y., Xu, M., Zhou, Y., Xu, L., Liu, N., Lv, M., Li, J., Wang, T., Sun, B., Qiu, C., Xu, R., Zhang, R., Wang, J., Jiang, K., Fang, L., Zhang, H., Hou, S., Li, G., Chen, H., Deng, X.W., and Li, B. (2026). Super-resolution multimodal spatial transcriptomics reveals that <em>de novo</em> plant regeneration is structured by an ovoid stem-cell niche. Mol. Plant, Volume, Pages. DOI.",
+        "Song, X., Zhang, S., Yue, Z., Liu, Y., Chen, S., Niu, Y., Shi, Y., Yang, H., Xu, L., Liu, N., Miao, Y., Lv, M., Li, J., Wang, T., Xu, M., Sun, B., Qiu, C., Xu, R., Wang, J., Zhang, H., Hou, S., Li, G., Chen, H., Deng, X.W., and Li, B. (2026). Super-resolution single-cell spatial atlas of plant <em>de novo</em> regeneration. bioRxiv. https://doi.org/10.64898/2026.02.20.705279 (preprint).",
+      ],
       heroTags: ["1.16M cells", "101 spatial maps", "50 Xenium genes"],
       stats: [
         { value: "1.16M", label: "Profiled cells" },
@@ -808,6 +837,48 @@ export default {
 
 .citation-card p {
   margin: 16px 0 24px;
+}
+
+.publication-section {
+  background: linear-gradient(180deg, rgba(235, 243, 237, 0.78), #f7f8fb);
+  padding-bottom: 42px;
+}
+
+.publication-card {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.citation-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.publication-citation {
+  max-width: 820px;
+  margin: 0;
+}
+
+.publication-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin-top: 24px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8bd85c, #57b643);
+  color: #0d2009;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 16px 28px rgba(87, 182, 67, 0.2);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.publication-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 34px rgba(87, 182, 67, 0.26);
 }
 
 .citation-meta {

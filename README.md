@@ -1,14 +1,14 @@
-﻿# Single Cell Spatial Platform User Manual
+﻿# Tomato callus User Manual
 
-> Purpose: This document helps end users understand and operate the core pages, visualization features, and upload workflow of the Single Cell Spatial Platform.  
-> Last updated: 2026-03-27  
+> Purpose: This document helps end users understand and operate the core pages, visualization features, and upload workflow of Tomato callus, a single-cell spatial platform.  
+> Last updated: 2026-05-11  
 > Screenshot note: All screenshots in this document were captured locally from the current front-end build using Chromium and are stored in the `img/` directory.
 
 ---
 
 ## 1. Overview
 
-Single Cell Spatial Platform is a web platform for visualization, exploration, and result delivery of spatial transcriptomics, single-cell, and related multimodal datasets. The website currently includes the following main sections:
+Tomato callus is a single-cell spatial platform for visualization, exploration, and result delivery of spatial transcriptomics, single-cell, and related multimodal datasets from tomato callus regeneration. The website currently includes the following main sections:
 
 - **About**: platform introduction, research background, and resource overview
 - **Analyse**: online exploration of built-in datasets with cluster and gene-based visualization
@@ -367,7 +367,7 @@ If the UI, button labels, or upload rules change later, this document and the sc
 
 ## 13. Contact
 
-- Website: `http://www.single-cell-spatial.com`
+- Website: [Tomato callus](https://www.single-cell-spatial.com/#/home)
 - Contact email: `bosheng.li@pku-iaas.edu.cn`
 
 Possible future extensions:

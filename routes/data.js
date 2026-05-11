@@ -21,6 +21,7 @@ const LIST_GENES_SCRIPT = LIST_GENES_SCRIPT_CANDIDATES.find((p) => fs.existsSync
     || LIST_GENES_SCRIPT_CANDIDATES[0];
 
 const geneCache = new Map();
+const DEFAULT_EXAMPLE_GENE_LIMIT = 6;
 
 function sanitizeName(value) {
     return path.basename(String(value || '')).trim();
@@ -134,6 +135,55 @@ function runListGenes(datasetDir) {
     });
 }
 
+function isTruthyFlag(value) {
+    return ['1', 'true', 'yes', 'y'].includes(String(value || '').trim().toLowerCase());
+}
+
+function normalizeGeneList(genes) {
+    const seen = new Set();
+    const normalized = [];
+
+    for (const gene of genes || []) {
+        const name = String(gene || '').trim();
+        const key = name.toLowerCase();
+        if (!name || seen.has(key)) {
+            continue;
+        }
+        seen.add(key);
+        normalized.push(name);
+    }
+
+    return normalized;
+}
+
+function pickExampleGenes(genes) {
+    const normalized = normalizeGeneList(genes);
+    if (normalized.length <= DEFAULT_EXAMPLE_GENE_LIMIT) {
+        return normalized;
+    }
+
+    const examples = [];
+    const step = (normalized.length - 1) / (DEFAULT_EXAMPLE_GENE_LIMIT - 1);
+
+    for (let i = 0; i < DEFAULT_EXAMPLE_GENE_LIMIT; i += 1) {
+        const gene = normalized[Math.round(i * step)];
+        if (gene && !examples.includes(gene)) {
+            examples.push(gene);
+        }
+    }
+
+    for (const gene of normalized) {
+        if (examples.length >= DEFAULT_EXAMPLE_GENE_LIMIT) {
+            break;
+        }
+        if (!examples.includes(gene)) {
+            examples.push(gene);
+        }
+    }
+
+    return examples;
+}
+
 router.get('/types', (req, res) => {
     try {
         const dataSource = sanitizeName(req.query.data || 'spatial');
@@ -149,6 +199,7 @@ router.get('/:dataType/genes', async (req, res) => {
         const dataSource = sanitizeName(req.query.data || 'spatial');
         const dataType = sanitizeName(req.params.dataType);
         const search = String(req.query.search || '').trim().toLowerCase();
+        const wantsExamples = isTruthyFlag(req.query.example);
 
         const { datasetDir, checked, geneReady } = resolveDatasetDir(dataSource, dataType, { requireGenes: true });
         if (!datasetDir) {
@@ -176,6 +227,11 @@ router.get('/:dataType/genes', async (req, res) => {
         if (!genes) {
             genes = await runListGenes(datasetDir);
             geneCache.set(cacheKey, genes);
+        }
+
+        if (wantsExamples && !search) {
+            res.json({ success: true, data: pickExampleGenes(genes) });
+            return;
         }
 
         const filtered = search

@@ -2,7 +2,7 @@
   <div class="references-page">
     <section class="references-hero">
       <div class="container">
-        <button class="back-btn" @click="navigateTo('/about')">← Back to About</button>
+        <button class="back-btn" @click="navigateTo('/home')">← Back to Home</button>
         <span class="refs-kicker">Literature resource</span>
         <h1>Full reference list</h1>
         <p>

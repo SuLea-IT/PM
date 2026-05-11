@@ -22,5 +22,11 @@ export const apiConfig = {
       const queryString = params.toString();
       return `${baseURL}/data/${dataType}/genes${queryString ? `?${queryString}` : ''}`;
     },
+    getExampleGenes: (dataType, dataSource = 'spatial') => {
+      const params = new URLSearchParams();
+      if (dataSource) params.append('data', dataSource);
+      params.append('example', '1');
+      return `${baseURL}/data/${dataType}/genes?${params.toString()}`;
+    },
   }
 };
