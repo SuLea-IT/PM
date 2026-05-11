@@ -273,7 +273,7 @@ export default {
       clusterFigure,
       citationUrl: "https://www.biorxiv.org/content/10.64898/2026.02.20.705279v1.full",
       citations: [
-        "Song, X., Zhang, S., Yue, Z., Liu, Y., Chen, S., Niu, Y., Shi, Y., Yang, H., Xu, J., Miao, Y., Xu, M., Zhou, Y., Xu, L., Liu, N., Lv, M., Li, J., Wang, T., Sun, B., Qiu, C., Xu, R., Zhang, R., Wang, J., Jiang, K., Fang, L., Zhang, H., Hou, S., Li, G., Chen, H., Deng, X.W., and Li, B. (2026). Super-resolution multimodal spatial transcriptomics reveals that <em>de novo</em> plant regeneration is structured by an ovoid stem-cell niche. Mol. Plant, Volume, Pages. DOI.",
+        "Song, X., Zhang, S., Yue, Z., Liu, Y., Chen, S., Niu, Y., Shi, Y., Yang, H., Xu, J., Miao, Y., Xu, M., Zhou, Y., Xu, L., Liu, N., Lv, M., Li, J., Wang, T., Sun, B., Qiu, C., Xu, R., Zhang, R., Wang, J., Jiang, K., Fang, L., Zhang, H., Hou, S., Li, G., Chen, H., Deng, X.W., and Li, B. (2026). Super-resolution multimodal spatial transcriptomics reveals an ovoid stem-cell niche structuring <em>de novo</em> shoot regeneration. Mol. Plant, Volume, Pages. DOI.",
         "Song, X., Zhang, S., Yue, Z., Liu, Y., Chen, S., Niu, Y., Shi, Y., Yang, H., Xu, L., Liu, N., Miao, Y., Lv, M., Li, J., Wang, T., Xu, M., Sun, B., Qiu, C., Xu, R., Wang, J., Zhang, H., Hou, S., Li, G., Chen, H., Deng, X.W., and Li, B. (2026). Super-resolution single-cell spatial atlas of plant <em>de novo</em> regeneration. bioRxiv. https://doi.org/10.64898/2026.02.20.705279 (preprint).",
       ],
       heroTags: ["1.16M cells", "101 spatial maps", "50 Xenium genes"],
