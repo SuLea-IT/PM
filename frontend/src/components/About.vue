@@ -9,10 +9,9 @@
       <div class="hero-glow hero-glow-right"></div>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">TC-scSP</span>
+          <span class="eyebrow">Tomato callus</span>
           <h1>
             Tomato Callus Single-Cell Spatial Platform
-            <span>(TC-scSP)</span>
           </h1>
           <p class="hero-description">
             A multimodal spatiotemporal atlas that tracks tomato de novo
@@ -223,7 +222,7 @@
     <section class="contact-section">
       <div class="container contact-shell">
         <div class="contact-badge">T</div>
-        <h3>Tomato Callus Single-Cell Spatial Platform (TC-scSP)</h3>
+        <h3>Tomato Callus Single-Cell Spatial Platform</h3>
         <p class="contact-subtitle">
           A spatiotemporal single-cell atlas for tomato regeneration and plant
           spatial transcriptomics.
@@ -243,7 +242,7 @@
         </div>
 
         <div class="contact-footer">
-          Copyright © 2026 TC-scSP. All rights reserved | Best viewed with modern
+          Copyright © 2026 Tomato Callus Single-Cell Spatial Platform. All rights reserved | Best viewed with modern
           Chromium-based browsers
         </div>
       </div>
@@ -439,13 +438,6 @@ export default {
   margin: 16px 0 18px;
   font-size: clamp(2.35rem, 3.7vw, 4.2rem);
   line-height: 1.06;
-}
-
-.hero-copy h1 span {
-  display: block;
-  font-size: 0.48em;
-  line-height: 1.2;
-  margin-top: 10px;
 }
 
 .hero-description {

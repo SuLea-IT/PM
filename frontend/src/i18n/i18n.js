@@ -2,7 +2,7 @@ import { createI18n } from "vue-i18n";
 
 const messages = {
   en: {
-    title: "Tomato Callus Single-Cell Spatial Platform (TC-scSP)",
+    title: "Tomato Callus Single-Cell Spatial Platform",
     about: "About",
     home:"Home",
     analyse: "Analyse",

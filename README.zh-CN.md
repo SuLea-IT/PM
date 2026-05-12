@@ -1,6 +1,6 @@
-# Tomato Callus Single-Cell Spatial Platform (TC-scSP) 用户手册
+# Tomato Callus Single-Cell Spatial Platform 用户手册
 
-> 文档用途：帮助普通用户快速了解并使用 Tomato Callus Single-Cell Spatial Platform (TC-scSP) 的核心页面、可视化分析功能与上传流程。  
+> 文档用途：帮助普通用户快速了解并使用 Tomato Callus Single-Cell Spatial Platform 的核心页面、可视化分析功能与上传流程。  
 > 文档更新时间：2026-05-12  
 > 截图说明：本文中的界面截图基于当前前端版本通过 Chromium 本地截取，图片位于 `img/` 目录。
 
@@ -8,7 +8,7 @@
 
 ## 1. 平台简介
 
-Tomato Callus Single-Cell Spatial Platform (TC-scSP) 是一个面向番茄愈伤组织再生研究的单细胞空间平台，用于空间转录组、单细胞与相关多模态数据的可视化探索和结果交付。当前网站主要包含以下入口：
+Tomato Callus Single-Cell Spatial Platform 是一个面向番茄愈伤组织再生研究的单细胞空间平台，用于空间转录组、单细胞与相关多模态数据的可视化探索和结果交付。当前网站主要包含以下入口：
 
 - **About**：平台介绍、研究背景、数据资源概览；
 - **Analyse**：在线浏览平台数据，并进行聚类/基因相关可视化；
@@ -375,7 +375,7 @@ user-manual/
 
 ## 10. 联系与补充说明
 
-- 官方网站：[Tomato Callus Single-Cell Spatial Platform (TC-scSP)](https://www.single-cell-spatial.com/#/home)
+- 官方网站：[Tomato Callus Single-Cell Spatial Platform](https://www.single-cell-spatial.com/#/home)
 - 联系邮箱：`bosheng.li@pku-iaas.edu.cn`
 
 如需继续扩展，本手册后续还可以补充：
