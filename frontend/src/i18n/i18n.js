@@ -2,7 +2,7 @@ import { createI18n } from "vue-i18n";
 
 const messages = {
   en: {
-    title: "Spatial transcriptome database",
+    title: "Tomato Callus Single-Cell Spatial Platform (TC-scSP)",
     about: "About",
     home:"Home",
     analyse: "Analyse",

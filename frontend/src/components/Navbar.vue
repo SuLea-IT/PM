@@ -70,22 +70,25 @@ watchEffect(() => {
   z-index: 1000;
   top: 0;
   position: sticky;
+  gap: 18px;
 }
 
 .navbar-left {
-  width: 20%;
+  flex: 1 1 430px;
+  min-width: 0;
 }
 
 .navbar-title {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 15px;
+  line-height: 1.25;
+  display: block;
 }
 
 .navbar-center {
-  flex: 3;
+  flex: 0 0 auto;
   display: flex;
   justify-content: center;
-  width: 60%;
 }
 .navbar-center a {
   color: var(--el-navbar-color);
@@ -121,11 +124,28 @@ watchEffect(() => {
 }
 
 .navbar-right {
-  flex: 1;
+  flex: 1 1 120px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  width: 20%;
+  min-width: 60px;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .navbar-left {
+    flex-basis: calc(100% - 70px);
+  }
+
+  .navbar-center {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 </style>
